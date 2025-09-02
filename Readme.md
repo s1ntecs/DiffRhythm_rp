@@ -71,11 +71,11 @@ DiffRhythm (Chinese: 谛韵, Dì Yùn) is the ***first*** open-sourced diffusion
 * **2025.3.4 🔥** We released the [DiffRhythm paper](https://arxiv.org/abs/2503.01183) and [Huggingface Space demo](https://huggingface.co/spaces/ASLP-lab/DiffRhythm).
 
 ## TODOs
-- [ ] Dynamic length control
-- [ ] Vocals only
-- [ ] Song extension
 - [ ] Support Colab.
 - [ ] Gradio support.
+- [x] Dynamic length control
+- [x] Vocals only
+- [x] Song extension
 - [x] Support Docker.
 - [x] Release DiffRhythm-full.
 - [x] Release training code.
@@ -87,7 +87,8 @@ DiffRhythm (Chinese: 谛韵, Dì Yùn) is the ***first*** open-sourced diffusion
 
 |  Model   | HuggingFace |
 |  ----  | ----  |
-| ✨ **DiffRhythm-v1.2** (1m35s) — *New!*  | https://huggingface.co/ASLP-lab/DiffRhythm-1_2 |
+| DiffRhythm-v1.2-base (1m35s)  | https://huggingface.co/ASLP-lab/DiffRhythm-1_2 |
+| DiffRhythm-v1.2-full (4m45s)  | https://huggingface.co/ASLP-lab/DiffRhythm-1_2-full |
 | DiffRhythm-base (1m35s)  | https://huggingface.co/ASLP-lab/DiffRhythm-base |
 | DiffRhythm-full (4m45s)  | https://huggingface.co/ASLP-lab/DiffRhythm-full |
 | DiffRhythm-vae  | https://huggingface.co/ASLP-lab/DiffRhythm-vae |
