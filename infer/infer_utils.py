@@ -212,9 +212,15 @@ def encode_audio(audio, vae_model, chunked=False, overlap=32, chunk_size=128):
 
 def prepare_model(max_frames, device, repo_id="ASLP-lab/DiffRhythm-1_2"):
     # prepare cfm model
+    if max_frames == 2048:
+        repo_id = "ASLP-lab/DiffRhythm-1_2"
+    else:
+        repo_id = "ASLP-lab/DiffRhythm-1_2-full"
+        
     dit_ckpt_path = hf_hub_download(
         repo_id=repo_id, filename="cfm_model.pt", cache_dir="./pretrained"
     )
+        
     dit_config_path = "./config/diffrhythm-1b.json"
     with open(dit_config_path) as f:
         model_config = json.load(f)
@@ -357,12 +363,12 @@ class CNENTokenizer:
         return "|".join([self.id2phone[x - 1] for x in token])
 
 
-def get_lrc_token(max_frames, text, tokenizer, device):
+def get_lrc_token(max_frames, text, tokenizer, max_secs, device):
 
     lyrics_shift = 0
     sampling_rate = 44100
     downsample_rate = 2048
-    max_secs = max_frames / (sampling_rate / downsample_rate)
+    # max_secs = max_frames / (sampling_rate / downsample_rate)
 
     comma_token_id = 1
     period_token_id = 2
@@ -383,10 +389,15 @@ def get_lrc_token(max_frames, text, tokenizer, device):
     ]
     if max_frames == 2048:
         lrc_with_time = lrc_with_time[:-1] if len(lrc_with_time) >= 1 else lrc_with_time
+        
+    end_frame = max_frames if max_frames == 2048 else int(max_secs * (sampling_rate / downsample_rate))
+    end_frame = min(end_frame, max_frames) 
 
     normalized_start_time = 0.0
+    
+    normalized_duration = end_frame / max_frames
 
-    lrc = torch.zeros((max_frames,), dtype=torch.long)
+    lrc = torch.zeros((end_frame,), dtype=torch.long)
 
     tokens_count = 0
     last_end_pos = 0
@@ -402,7 +413,7 @@ def get_lrc_token(max_frames, text, tokenizer, device):
         frame_shift = random.randint(int(-lyrics_shift), int(lyrics_shift))
 
         frame_start = max(gt_frame_start - frame_shift, last_end_pos)
-        frame_len = min(num_tokens, max_frames - frame_start)
+        frame_len = min(num_tokens, end_frame - frame_start)
 
         lrc[frame_start : frame_start + frame_len] = tokens[:frame_len]
 
@@ -413,8 +424,11 @@ def get_lrc_token(max_frames, text, tokenizer, device):
 
     normalized_start_time = torch.tensor(normalized_start_time).unsqueeze(0).to(device)
     normalized_start_time = normalized_start_time.half()
+    
+    normalized_duration = torch.tensor(normalized_duration).unsqueeze(0).to(device)
+    normalized_duration = normalized_duration.half()
 
-    return lrc_emb, normalized_start_time
+    return lrc_emb, normalized_start_time, end_frame, normalized_duration
 
 
 def load_checkpoint(model, ckpt_path, device, use_ema=True):

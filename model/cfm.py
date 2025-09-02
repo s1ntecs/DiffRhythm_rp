@@ -136,6 +136,7 @@ class CFM(nn.Module):
         edit_mask=None,
         start_time=None,
         latent_pred_segments=None,
+        song_duration=None,
         batch_infer_num=1
     ):
         self.eval()
@@ -200,19 +201,20 @@ class CFM(nn.Module):
         negative_style_prompt = negative_style_prompt.repeat(batch_infer_num, 1)
         start_time = start_time.repeat(batch_infer_num)
         fixed_span_mask = fixed_span_mask.repeat(batch_infer_num, 1, 1)
+        song_duration = song_duration.repeat(batch_infer_num)
 
         def fn(t, x):
             # predict flow
             pred = self.transformer(
                 x=x, cond=step_cond, text=text, time=t, drop_audio_cond=False, drop_text=False, drop_prompt=False,
-                style_prompt=style_prompt, start_time=start_time
+                style_prompt=style_prompt, start_time=start_time, duration=song_duration
             )
             if cfg_strength < 1e-5:
                 return pred
 
             null_pred = self.transformer(
                 x=x, cond=step_cond, text=text, time=t, drop_audio_cond=True, drop_text=True, drop_prompt=False,
-                style_prompt=negative_style_prompt, start_time=start_time
+                style_prompt=negative_style_prompt, start_time=start_time, duration=song_duration
             )
             return pred + (pred - null_pred) * cfg_strength
 

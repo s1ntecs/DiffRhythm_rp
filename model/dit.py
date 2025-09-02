@@ -118,6 +118,7 @@ class DiT(nn.Module):
         cond_dim = 512
         self.time_embed = TimestepEmbedding(cond_dim)
         self.start_time_embed = TimestepEmbedding(cond_dim)
+        self.duration_time_embed = TimestepEmbedding(cond_dim) if self.max_frames == 6144 else None
         if text_dim is None:
             text_dim = mel_dim
         self.text_embed = TextEmbedding(text_num_embeds, text_dim, conv_layers=conv_layers, max_pos=self.max_frames)
@@ -170,6 +171,7 @@ class DiT(nn.Module):
         drop_prompt=False,
         style_prompt=None, # [b d t]
         start_time=None,
+        duration=None
     ):
 
         batch, seq_len = x.shape[0], x.shape[1]
@@ -179,7 +181,8 @@ class DiT(nn.Module):
         # t: conditioning time, c: context (text + masked cond audio), x: noised input audio
         t = self.time_embed(time)
         s_t = self.start_time_embed(start_time)
-        c = t + s_t
+        d_t = self.duration_time_embed(duration) if self.max_frames == 6144 else torch.zeros_like(s_t)
+        c = t + s_t + d_t
         text_embed = self.text_embed(text, seq_len, drop_text=drop_text)
 
         if drop_prompt:

@@ -46,6 +46,7 @@ def inference(
     start_time,
     pred_frames,
     batch_infer_num,
+    song_duration,
     chunked=False,
 ):
     with torch.inference_mode():
@@ -54,6 +55,8 @@ def inference(
             text=text,
             duration=duration,
             style_prompt=style_prompt,
+            max_duration=duration,
+            song_duration=song_duration, 
             negative_style_prompt=negative_style_prompt,
             steps=32,
             cfg_strength=4.0,
@@ -113,12 +116,12 @@ if __name__ == "__main__":
         "--audio-length",
         type=int,
         default=95,
-        choices=[95, 285],
-        help="length of generated song",
+        # choices=[95, 285],
+        help="length of generated song, upported values are exactly 95 or any value between 96 and 285 (inclusive).",
     )  # length of target song
-    parser.add_argument(
-        "--repo-id", type=str, default="ASLP-lab/DiffRhythm-base", help="target model"
-    )
+    # parser.add_argument(
+    #     "--repo-id", type=str, default="ASLP-lab/DiffRhythm-base", help="target model"
+    # )
     parser.add_argument(
         "--output-dir",
         type=str,
@@ -172,17 +175,22 @@ if __name__ == "__main__":
     audio_length = args.audio_length
     if audio_length == 95:
         max_frames = 2048
-    elif audio_length == 285:  # current not available
+    elif 95 < audio_length <= 285:
         max_frames = 6144
+    else:
+        raise ValueError(
+            f"Invalid audio_length: {audio_length}. "
+            "Supported values are exactly 95 or any value between 96 and 285 (inclusive)."
+        )
 
-    cfm, tokenizer, muq, vae = prepare_model(max_frames, device, repo_id=args.repo_id)
+    cfm, tokenizer, muq, vae = prepare_model(max_frames, device)
 
     if args.lrc_path:
         with open(args.lrc_path, "r", encoding='utf-8') as f:
             lrc = f.read()
     else:
         lrc = ""
-    lrc_prompt, start_time = get_lrc_token(max_frames, lrc, tokenizer, device)
+    lrc_prompt, start_time, end_frame, song_duration = get_lrc_token(max_frames, lrc, tokenizer, audio_length, device)
 
     if args.ref_audio_path:
         style_prompt = get_style_prompt(muq, args.ref_audio_path)
@@ -199,13 +207,14 @@ if __name__ == "__main__":
         vae_model=vae,
         cond=latent_prompt,
         text=lrc_prompt,
-        duration=max_frames,
+        duration=end_frame,
         style_prompt=style_prompt,
         negative_style_prompt=negative_style_prompt,
         start_time=start_time,
         pred_frames=pred_frames,
         chunked=args.chunked,
-        batch_infer_num=args.batch_infer_num
+        batch_infer_num=args.batch_infer_num,
+        song_duration=song_duration
     )
     e_t = time.time() - s_t
     print(f"inference cost {e_t:.2f} seconds")
