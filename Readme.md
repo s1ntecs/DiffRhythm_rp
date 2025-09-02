@@ -9,9 +9,17 @@
 Ziqian Ning, Huakang Chen, Yuepeng Jiang, Chunbo Hao, Guobin Ma, Shuai Wang, Jixun Yao, Lei Xie†
 
 <p align="center">
- <a href="https://huggingface.co/spaces/ASLP-lab/DiffRhythm"> Huggingface Space Demo</a> </a>&nbsp
-<br>
-📑 <a href="https://arxiv.org/abs/2503.01183">Paper</a> &nbsp&nbsp | &nbsp&nbsp 📑 <a href="https://aslp-lab.github.io/DiffRhythm.github.io/">Demo</a> &nbsp&nbsp | &nbsp&nbsp 💬 <a href="src/contact.md">WeChat (微信)</a>&nbsp&nbsp
+  <a href="https://huggingface.co/spaces/ASLP-lab/DiffRhythm">Huggingface Space Demo</a>
+  <br>
+  <b>DiffRhythm+</b> &nbsp;&nbsp;|&nbsp;&nbsp;
+  📑 <a href="https://arxiv.org/abs/2507.12890">Paper</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+  🎵 <a href="https://longwaytog0.github.io/DiffRhythmPlus/">Demo</a>
+  <br>
+  <b>DiffRhythm</b> &nbsp;&nbsp;|&nbsp;&nbsp;
+  📑 <a href="https://arxiv.org/abs/2503.01183">Paper</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+  🎵 <a href="https://aslp-lab.github.io/DiffRhythm.github.io/">Demo</a>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  💬 <a href="src/contact.md">WeChat (微信)</a>
 </p>
 
 DiffRhythm (Chinese: 谛韵, Dì Yùn) is the ***first*** open-sourced diffusion-based music generation model that is capable of creating full-length songs. The name combines "Diff" (referencing its diffusion architecture) with "Rhythm" (highlighting its focus on music and song creation). The Chinese name 谛韵 (Dì Yùn) phonetically mirrors "DiffRhythm", where "谛" (attentive listening) symbolizes auditory perception, and "韵" (melodic charm) represents musicality.
@@ -24,6 +32,10 @@ DiffRhythm (Chinese: 谛韵, Dì Yùn) is the ***first*** open-sourced diffusion
 ## News and Updates
 
 * 📌 Join Us on Discord! [![Discord](https://dcbadge.limes.pink/api/server/https://discord.gg/vUD4zgTpJa)](https://discord.gg/vUD4zgTpJa)
+
+* **2025.5.9 🔥** **DiffRhythm-v1.2 Official Launch!**
+
+   Version 1.2 largely resolves repetition and omission issues, significantly improves audio quality and arrangement with richer instrumentation, and enables song editing and continuation with advanced understanding of music structure and style.
 
 * **2025.3.15 🔥** **DiffRhythm-full Official Release: Complete Music Generation!**  
 
@@ -75,6 +87,7 @@ DiffRhythm (Chinese: 谛韵, Dì Yùn) is the ***first*** open-sourced diffusion
 
 |  Model   | HuggingFace |
 |  ----  | ----  |
+| ✨ **DiffRhythm-v1.2** (1m35s) — *New!*  | https://huggingface.co/ASLP-lab/DiffRhythm-1_2 |
 | DiffRhythm-base (1m35s)  | https://huggingface.co/ASLP-lab/DiffRhythm-base |
 | DiffRhythm-full (4m45s)  | https://huggingface.co/ASLP-lab/DiffRhythm-full |
 | DiffRhythm-vae  | https://huggingface.co/ASLP-lab/DiffRhythm-vae |
