@@ -55,6 +55,6 @@ RUN mkdir -p /workspace/.cache/huggingface /workspace/.cache/torch
 RUN chmod +x /workspace/start_standalone.sh
 
 # Добавляем путь к Python
-ENV PYTHONPATH="${PYTHONPATH}:/workspace"
-
+# ENV PYTHONPATH="${PYTHONPATH}:/workspace"
+COPY --chmod=755 start_standalone.sh /start.sh
 ENTRYPOINT ["/workspace/start_standalone.sh"]
