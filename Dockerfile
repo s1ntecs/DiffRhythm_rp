@@ -6,31 +6,55 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TORCH_HOME=/workspace/.cache/torch \
     TOKENIZERS_PARALLELISM=false
 
-# Системные зависимости: espeak-ng (их packages.txt), плюс аудио тулзы
+# Системные зависимости
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3-dev python3-pip python3.10-venv git \
+    python3-dev python3-pip python3.10-venv git wget \
     espeak-ng ffmpeg libsndfile1 \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
 
-# 2) Copy requirements
-COPY requirements.txt .
+# Копируем ВСЕ файлы
+COPY . /workspace/
 
-# PyTorch 2.6.0 / CUDA 12.4 (важно: torchaudio==2.6.0 у них в requirements)
-RUN python3 -m pip install --upgrade pip
-RUN python3 -m pip install --index-url https://download.pytorch.org/whl/cu124 \
+# Устанавливаем PyTorch 2.6.0 с CUDA 12.4
+RUN python3 -m pip install --upgrade pip && \
+    python3 -m pip install --index-url https://download.pytorch.org/whl/cu124 \
     torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0
 
-RUN python3 -m pip install -r /app/requirements.txt
+# Устанавливаем зависимости проекта
+RUN python3 -m pip install -r /workspace/requirements.txt
 
-# RunPod SDK
+# Устанавливаем RunPod SDK
 RUN python3 -m pip install runpod
 
-COPY . .
+# ==========================================
+# ✅ ПРЕДЗАГРУЗКА МОДЕЛЕЙ (РЕКОМЕНДУЕТСЯ!)
+# ==========================================
+# Раскомментируй эти строки чтобы упаковать модели в образ
+# Это увеличит размер образа до ~12GB но ускорит cold start до 10-20 секунд
 
-# Кеш директории (ускоряет cold start)
+RUN python3 -m pip install huggingface_hub && \
+    python3 /workspace/download_models.py
+
+# Альтернатива: загружать только base модель (экономия 3.5GB):
+RUN python3 -m pip install huggingface_hub && \
+    python3 /workspace/download_models.py --no-full
+
+# ==========================================
+# ЕСЛИ НЕ ХОЧЕШЬ ПРЕДЗАГРУЗКУ:
+# ==========================================
+# Закомментируй строки выше с RUN python3... download_models.py
+# Модели загрузятся автоматически при первом запуске (займёт 3-5 минут)
+# ==========================================
+
+# Создаём кэш директории
 RUN mkdir -p /workspace/.cache/huggingface /workspace/.cache/torch
 
-COPY --chmod=755 start_standalone.sh /start.sh
-ENTRYPOINT ["/start.sh"]
+# Делаем start.sh исполняемым
+RUN chmod +x /workspace/start_standalone.sh
+
+# Добавляем путь к Python
+ENV PYTHONPATH="${PYTHONPATH}:/workspace"
+
+ENTRYPOINT ["/workspace/start_standalone.sh"]
