@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /workspace
 
-# Копируем ВСЕ файлы
-COPY . /workspace/
+
+COPY requirements.txt .
 
 # Устанавливаем PyTorch 2.6.0 с CUDA 12.4
 RUN python3 -m pip install --upgrade pip && \
@@ -27,6 +27,10 @@ RUN python3 -m pip install -r /workspace/requirements.txt
 
 # Устанавливаем RunPod SDK
 RUN python3 -m pip install runpod
+
+# Копируем ВСЕ файлы
+COPY . /workspace/
+
 
 # ==========================================
 # ✅ ПРЕДЗАГРУЗКА МОДЕЛЕЙ (РЕКОМЕНДУЕТСЯ!)
@@ -50,9 +54,6 @@ RUN python3 -m pip install runpod
 
 # Создаём кэш директории
 RUN mkdir -p /workspace/.cache/huggingface /workspace/.cache/torch
-
-# Делаем start.sh исполняемым
-RUN chmod +x /workspace/start_standalone.sh
 
 # Добавляем путь к Python
 # ENV PYTHONPATH="${PYTHONPATH}:/workspace"
