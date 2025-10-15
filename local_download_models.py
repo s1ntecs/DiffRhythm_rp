@@ -12,10 +12,10 @@ MODELS_DIR = "./pretrained"
 
 def download_all():
     os.makedirs(MODELS_DIR, exist_ok=True)
-    
+
     print("🔽 Downloading DiffRhythm weights locally...")
     print(f"📁 Destination: {os.path.abspath(MODELS_DIR)}\n")
-    
+
     # 1. Base model (95 seconds)
     print("[1/4] DiffRhythm-1_2 (base - 95s) - 3.5GB")
     hf_hub_download(
@@ -25,7 +25,7 @@ def download_all():
         local_dir_use_symlinks=False
     )
     print("✅ Done\n")
-    
+
     # 2. Full model (285 seconds)
     print("[2/4] DiffRhythm-1_2-full (long audio - 285s) - 3.5GB")
     hf_hub_download(
@@ -35,7 +35,7 @@ def download_all():
         local_dir_use_symlinks=False
     )
     print("✅ Done\n")
-    
+
     # 3. VAE
     print("[3/4] DiffRhythm-vae - 400MB")
     hf_hub_download(
@@ -45,7 +45,7 @@ def download_all():
         local_dir_use_symlinks=False
     )
     print("✅ Done\n")
-    
+
     # 4. MuQ-MuLan
     print("[4/4] MuQ-MuLan-large - 1.5GB")
     snapshot_download(
@@ -55,7 +55,7 @@ def download_all():
         ignore_patterns=["*.md", "*.txt", ".gitattributes"]
     )
     print("✅ Done\n")
-    
+
     print("=" * 60)
     print("✅ ALL WEIGHTS DOWNLOADED!")
     print("=" * 60)

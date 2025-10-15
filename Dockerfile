@@ -34,12 +34,12 @@ RUN python3 -m pip install runpod
 # Раскомментируй эти строки чтобы упаковать модели в образ
 # Это увеличит размер образа до ~12GB но ускорит cold start до 10-20 секунд
 
-RUN python3 -m pip install huggingface_hub && \
-    python3 /workspace/download_models.py
+# RUN python3 -m pip install huggingface_hub && \
+#     python3 /workspace/download_models.py
 
 # Альтернатива: загружать только base модель (экономия 3.5GB):
-RUN python3 -m pip install huggingface_hub && \
-    python3 /workspace/download_models.py --no-full
+# RUN python3 -m pip install huggingface_hub && \
+#     python3 /workspace/download_models.py --no-full
 
 # ==========================================
 # ЕСЛИ НЕ ХОЧЕШЬ ПРЕДЗАГРУЗКУ:
