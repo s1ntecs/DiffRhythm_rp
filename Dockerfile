@@ -33,14 +33,8 @@ RUN python3 -m pip install runpod
 # ----- Копируем весь проект в -----
 COPY . .
 
-# Чиним строки и права у стартового скрипта
-RUN dos2unix start_standalone.sh && \
-    chmod 755  start_standalone.sh
+RUN dos2unix start_standalone.sh && chmod 755 start_standalone.sh
+COPY start_standalone.sh /start.sh
+RUN chmod 755 /start.sh
 
-# Кэши на будущее
-RUN mkdir -p /.cache/huggingface /.cache/torch
-
-# COPY --chmod=755 start_standalone.sh /start.sh
-
-# ----- Запуск -----
-ENTRYPOINT ["/start_standalone.sh"]
+ENTRYPOINT ["/start.sh"]
