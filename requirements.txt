@@ -28,3 +28,4 @@ pyopenjtalk-dict==0.3.4.dev2
 aiohttp
 Pillow
 mediapipe
+pydub

@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional
 
 import torch
 import torchaudio
+from pydub import AudioSegment
 
 import runpod
 from runpod.serverless.utils.rp_download import file as rp_file
@@ -191,27 +192,73 @@ def handler(job: Dict[str, Any]) -> Dict[str, Any]:
             audio_i16 = audio_i16.T
 
         # Сохраняем во временный файл
+        # tmp = tempfile.mkdtemp()
+        # out_wav = os.path.join(tmp, "output.wav")
+        # torchaudio.save(out_wav, audio_i16.cpu(), sample_rate=SR)
+
+        # LOGGER.info(f"Audio saved to: {out_wav}")
+
+        # # Конвертируем в base64 для возврата
+        # b64 = _wav_b64_from_tensor(audio_i16, SR)
+
+        # elapsed = round(time.time() - t0, 3)
+        # LOGGER.info(f"Inference completed in {elapsed}s")
+
+        # return {
+        #     "output_path": out_wav,
+        #     "audio_base64": b64,
+        #     "sample_rate": SR,
+        #     "audio_length": audio_length,
+        #     "seed": seed,
+        #     "chunked": chunked,
+        #     "time_sec": elapsed,
+        # }
+
+        # Сохраняем во временный файл
         tmp = tempfile.mkdtemp()
         out_wav = os.path.join(tmp, "output.wav")
         torchaudio.save(out_wav, audio_i16.cpu(), sample_rate=SR)
 
         LOGGER.info(f"Audio saved to: {out_wav}")
 
-        # Конвертируем в base64 для возврата
-        b64 = _wav_b64_from_tensor(audio_i16, SR)
+        # Конвертируем WAV в MP3 для уменьшения размера
+        
+
+        out_mp3 = os.path.join(tmp, "output.mp3")
+        audio_segment = AudioSegment.from_wav(out_wav)
+        audio_segment.export(
+            out_mp3,
+            format="mp3",
+            bitrate="192k",  # хорошее качество, ~10x меньше WAV
+            parameters=["-q:a", "2"]  # качество VBR (0-9, 2=высокое)
+        )
+
+        # Получаем размер файлов для логирования
+        wav_size_mb = os.path.getsize(out_wav) / (1024 * 1024)
+        mp3_size_mb = os.path.getsize(out_mp3) / (1024 * 1024)
+
+        LOGGER.info(f"WAV: {wav_size_mb:.2f}MB -> MP3: {mp3_size_mb:.2f}MB")
+
+        # Читаем MP3 в base64
+        with open(out_mp3, 'rb') as f:
+            audio_base64 = base64.b64encode(f.read()).decode('utf-8')
 
         elapsed = round(time.time() - t0, 3)
         LOGGER.info(f"Inference completed in {elapsed}s")
 
         return {
-            "output_path": out_wav,
-            "audio_base64": b64,
+            "audio_base64": audio_base64,
+            "format": "mp3",
+            "bitrate": "192k",
             "sample_rate": SR,
             "audio_length": audio_length,
             "seed": seed,
             "chunked": chunked,
             "time_sec": elapsed,
+            "wav_size_mb": round(wav_size_mb, 2),
+            "mp3_size_mb": round(mp3_size_mb, 2),
         }
+        
 
     except torch.cuda.OutOfMemoryError as e:
         msg = str(e)
