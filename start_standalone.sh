@@ -3,4 +3,4 @@ set -e
 echo "Worker Initiated"
 echo "Starting RunPod Handler"
 export PYTHONUNBUFFERED=1
-python3 -u /workspace/rp_handler.py
+python3 -u rp_handler.py

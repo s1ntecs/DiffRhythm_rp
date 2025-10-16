@@ -4,8 +4,8 @@ FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=off \
-    HF_HOME=/workspace/.cache/huggingface \
-    TORCH_HOME=/workspace/.cache/torch \
+    HF_HOME=/.cache/huggingface \
+    TORCH_HOME=/.cache/torch \
     TOKENIZERS_PARALLELISM=false
 
 # ----- System deps -----
@@ -24,29 +24,23 @@ RUN python3 -m pip install --upgrade pip && \
       torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0
 
 # Ставим зависимости проекта (если есть)
-COPY requirements.txt /workspace/requirements.txt
-RUN if [ -f /workspace/requirements.txt ]; then \
-      python3 -m pip install -r /workspace/requirements.txt ; \
-    fi
+COPY requirements.txt .
+RUN python3 -m pip install -r requirements.txt
 
 # RunPod SDK
 RUN python3 -m pip install runpod
 
-# ----- Копируем весь проект в /workspace -----
-COPY . /workspace/
+# ----- Копируем весь проект в -----
+COPY . .
 
 # Чиним строки и права у стартового скрипта
-RUN dos2unix /workspace/start_standalone.sh && \
-    chmod 755  /workspace/start_standalone.sh
+RUN dos2unix start_standalone.sh && \
+    chmod 755  start_standalone.sh
 
 # Кэши на будущее
-RUN mkdir -p /workspace/.cache/huggingface /workspace/.cache/torch
+RUN mkdir -p /.cache/huggingface /.cache/torch
 
-# (опц.) предзагрузка весов — ускорит cold start, но увеличит образ
-# RUN python3 -m pip install huggingface_hub && python3 /workspace/download_models.py
-
-# Лучше явно указать PYTHONPATH на корень (на случай смены WORKDIR)
-ENV PYTHONPATH=/workspace:${PYTHONPATH}
+# COPY --chmod=755 start_standalone.sh /start.sh
 
 # ----- Запуск -----
-ENTRYPOINT ["/workspace/start_standalone.sh"]
+ENTRYPOINT ["/start_standalone.sh"]
